@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AI Prompt Reconstructor & Enhancer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+        <div class="floating-orb orb-4"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Prompt Reconstructor</h1>
+                    <p>AI-Powered YouTube Prompt Engineering</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div id="apiKeyConfig" class="api-key-config">
+                    <div class="api-input-group">
+                        <i class="fas fa-key"></i>
+                        <input type="password" id="geminiApiKey" placeholder="Gemini API Key (Optional)" title="Enter your Gemini API Key to use the pro engine">
+                        <button id="verifyApiKeyBtn" class="verify-btn" title="Verify Key">
+                            <i class="fas fa-check-circle"></i> Verify
+                        </button>
+                        <div id="apiStatusIcon" class="api-status-icon"></div>
+                    </div>
+                </div>
+                <div class="header-badge">
+                    <span class="badge-dot"></span>
+                    <span id="aiModeBadge">{{ ai_mode | upper }} Engine</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Input Section -->
+        <section class="input-section glass-card">
+            <div class="input-header">
+                <div class="section-icon"><i class="fab fa-youtube"></i></div>
+                <div>
+                    <h2>Analyze YouTube Video</h2>
+                    <p>Paste any YouTube URL to extract & reconstruct AI prompts</p>
+                </div>
+            </div>
+            <div class="input-wrapper">
+                <div class="input-group">
+                    <i class="fas fa-link input-icon"></i>
+                    <input 
+                        type="text" 
+                        id="youtubeUrl" 
+                        placeholder="https://www.youtube.com/watch?v=..." 
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <button id="clearBtn" class="clear-btn" title="Clear">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button id="analyzeBtn" class="analyze-btn">
+                    <span class="btn-content">
+                        <i class="fas fa-magic"></i>
+                        <span>Analyze & Reconstruct</span>
+                    </span>
+                    <span class="btn-loading" style="display:none;">
+                        <div class="spinner"></div>
+                        <span>Processing...</span>
+                    </span>
+                </button>
+            </div>
+            <div class="quick-tips">
+                <span><i class="fas fa-lightbulb"></i> Supports youtube.com, youtu.be, and shorts URLs</span>
+            </div>
+        </section>
+
+        <!-- Loading State -->
+        <section id="loadingSection" class="loading-section" style="display:none;">
+            <div class="glass-card loading-card">
+                <div class="loading-animation">
+                    <div class="loading-ring">
+                        <div class="ring-segment"></div>
+                        <div class="ring-segment"></div>
+                        <div class="ring-segment"></div>
+                    </div>
+                    <div class="loading-icon"><i class="fas fa-brain"></i></div>
+                </div>
+                <h3 id="loadingText">Fetching transcript...</h3>
+                <div class="loading-steps">
+                    <div class="step active" id="step1">
+                        <i class="fas fa-download"></i> Extracting Transcript
+                    </div>
+                    <div class="step" id="step2">
+                        <i class="fas fa-search-plus"></i> Analyzing Content
+                    </div>
+                    <div class="step" id="step3">
+                        <i class="fas fa-puzzle-piece"></i> Reconstructing Prompts
+                    </div>
+                    <div class="step" id="step4">
+                        <i class="fas fa-bolt"></i> Enhancing Prompts
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error State -->
+        <section id="errorSection" class="error-section" style="display:none;">
+            <div class="glass-card error-card">
+                <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <h3>Oops! Something went wrong</h3>
+                <p id="errorMessage"></p>
+                <button onclick="resetUI()" class="retry-btn">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section" style="display:none;">
+            
+            <!-- Video Info Card -->
+            <div class="glass-card result-card video-info-card animate-in">
+                <div class="card-header">
+                    <div class="card-icon video-icon"><i class="fab fa-youtube"></i></div>
+                    <h3>Video Analysis</h3>
+                    <span class="ai-badge" id="aiModeResult"></span>
+                </div>
+                <div class="video-preview">
+                    <div class="video-thumbnail">
+                        <img id="videoThumbnail" src="" alt="Video Thumbnail">
+                        <div class="play-overlay"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="video-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span id="transcriptLength">0</span>
+                            <label>Characters</label>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-list"></i>
+                            <span id="segmentCount">0</span>
+                            <label>Segments</label>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-tag"></i>
+                            <span id="contentType">-</span>
+                            <label>Content Type</label>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-layer-group"></i>
+                            <span id="complexity">-</span>
+                            <label>Complexity</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="topics-section">
+                    <h4><i class="fas fa-tags"></i> Key Topics</h4>
+                    <div class="topics-list" id="topicsList"></div>
+                </div>
+                <div class="transcript-preview">
+                    <h4><i class="fas fa-quote-left"></i> Transcript Preview</h4>
+                    <div class="transcript-text" id="transcriptPreview"></div>
+                </div>
+            </div>
+
+            <!-- Reconstructed Prompts -->
+            <div class="glass-card result-card prompts-card animate-in delay-1">
+                <div class="card-header">
+                    <div class="card-icon prompt-icon">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3>Reconstructed Prompts</h3>
+                    <span class="count-badge" id="promptCount">0</span>
+                </div>
+                <p class="card-description">
+                    These are the likely prompts that could generate similar content
+                </p>
+                <div class="prompts-list" id="reconstructedPrompts"></div>
+            </div>
+
+            <!-- Enhanced Prompts -->
+            <div class="glass-card result-card enhanced-card animate-in delay-2">
+                <div class="card-header">
+                    <div class="card-icon enhanced-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Enhanced Power Prompts</h3>
+                    <span class="premium-badge">
+                        <i class="fas fa-crown"></i> Pro Quality
+                    </span>
+                </div>
+                <p class="card-description">
+                    Supercharged versions optimized for maximum AI output quality
+                </p>
+                <div class="enhanced-list" id="enhancedPrompts"></div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>🚀 AI Prompt Reconstructor & Enhancer — 100% Free & Open Source</p>
+            <p class="footer-sub">
+                Built with Flask, YouTube Transcript API & AI
+            </p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
