@@ -35,5 +35,5 @@
 4.  **Set Up API Key**: 
     Open **[http://localhost:5000](http://localhost:5000)** and enter your Gemini API key in the header to unlock the Pro Engine.
 
-👨‍💻 **Developed By**
-Developed with ❤️ by Subhan Kashif.
+👨‍💻 Developed By
+Developed with ❤️ by **Subhan Kashif**.
